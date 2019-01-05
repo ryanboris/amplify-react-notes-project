@@ -2,6 +2,11 @@ import React, { Component } from 'react'
 import { API, graphqlOperation } from 'aws-amplify'
 import { withAuthenticator } from 'aws-amplify-react'
 import { createNote } from './graphql/mutations'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faIgloo, faTrash } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faIgloo, faTrash)
 
 class App extends Component {
   state = {
@@ -9,12 +14,14 @@ class App extends Component {
     notes: []
   }
 
+  deleteNote = (event, id) => {}
+
   handleChangeNote = event => {
     this.setState({ note: event.target.value })
   }
 
   handleAddNote = event => {
-    const { note } = this.state
+    const { note, notes } = this.state
     event.preventDefault()
     const input = {
       note
@@ -22,14 +29,18 @@ class App extends Component {
     API.graphql(graphqlOperation(createNote, { input }))
       .then(response => {
         this.setState({
-          notes: [...this.state.notes, response.data.createNote],
-          note: ""
+          notes: [...notes, response.data.createNote],
+          note: ''
         })
       })
       .catch(e => console.error(e))
   }
 
   render() {
+    const { note, notes } = this.state
+    const pointerStyle = {
+      cursor: 'pointer'
+    }
     return (
       <div className="flex flex-column items-center justify-center pa3 bg-washed-red">
         <h1 className="code f2-l">Amplify Notetaker</h1>
@@ -39,7 +50,7 @@ class App extends Component {
             type="text"
             className="pa2 f4"
             placeholder="Write your note"
-            value={this.state.note}
+            value={note}
             onChange={this.handleChangeNote}
           />
           <button className="pa2 f4" type="submit">
@@ -48,11 +59,24 @@ class App extends Component {
         </form>
         {/** Notes */}
         <div>
-          {this.state.notes.map(note => {
+          {notes.map(note => {
             return (
               <div key={note.id} className="flex items-center">
                 <ul>
-                  <li className="list pa1 f3">{note.note}</li>
+                  <li className="list pa1 f3">
+                    <div>
+                      <p>{note.note}</p>
+                      <p>
+                        <FontAwesomeIcon
+                          style={pointerStyle}
+                          id={note.id}
+                          icon="trash"
+                          size="xs"
+                          onClick={this.deleteNote}
+                        />
+                      </p>
+                    </div>
+                  </li>
                 </ul>
                 <button className="bg-transparent bn f4" />
               </div>
