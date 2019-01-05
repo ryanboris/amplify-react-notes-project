@@ -23,7 +23,7 @@ class App extends Component {
       .then(response => {
         this.setState({
           notes: [...this.state.notes, response.data.createNote],
-          note: ''
+          note: ""
         })
       })
       .catch(e => console.error(e))
@@ -34,7 +34,7 @@ class App extends Component {
       <div className="flex flex-column items-center justify-center pa3 bg-washed-red">
         <h1 className="code f2-l">Amplify Notetaker</h1>
         {/* Note Form*/}
-        <form onSubmit={() => this.setState({ note: '' })} className="mb3">
+        <form onSubmit={this.handleAddNote} className="mb3">
           <input
             type="text"
             className="pa2 f4"
@@ -42,7 +42,7 @@ class App extends Component {
             value={this.state.note}
             onChange={this.handleChangeNote}
           />
-          <button className="pa2 f4" type="submit" onClick={this.handleAddNote}>
+          <button className="pa2 f4" type="submit">
             Add Note
           </button>
         </form>
