@@ -13,13 +13,21 @@ class App extends Component {
     this.setState({ note: event.target.value })
   }
 
-  handleAddNote = async event => {
+  handleAddNote = event => {
     const { note } = this.state
     event.preventDefault()
     const input = {
       note
     }
-    const response = await API.graphql(graphqlOperation(createNote, { input }))
+    API.graphql(graphqlOperation(createNote, { input }))
+      .then(response => {
+        this.setState({
+          notes: [...this.state.notes, response.data.createNote],
+          note: ''
+        })
+      })
+
+      .catch(e => console.error(e))
   }
 
   render() {
@@ -27,14 +35,15 @@ class App extends Component {
       <div className="flex flex-column items-center justify-center pa3 bg-washed-red">
         <h1 className="code f2-l">Amplify Notetaker</h1>
         {/* Note Form*/}
-        <form onSubmit={this.handleAddNote} className="mb3">
+        <form onSubmit={() => this.setState({ note: '' })} className="mb3">
           <input
             type="text"
             className="pa2 f4"
             placeholder="Write your note"
+            value={this.state.note}
             onChange={this.handleChangeNote}
           />
-          <button className="pa2 f4" type="submit">
+          <button className="pa2 f4" type="submit" onClick={this.handleAddNote}>
             Add Note
           </button>
         </form>
@@ -43,8 +52,9 @@ class App extends Component {
           {this.state.notes.map(note => {
             return (
               <div key={note.id} className="flex items-center">
-                <li className="list pa1 f3">{note}</li>
-
+                <ul>
+                  <li className="list pa1 f3">{note.note}</li>
+                </ul>
                 <button className="bg-transparent bn f4" />
               </div>
             )
@@ -54,5 +64,4 @@ class App extends Component {
     )
   }
 }
-
 export default withAuthenticator(App, { includeGreetings: true })
