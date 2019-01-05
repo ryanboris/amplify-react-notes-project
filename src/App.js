@@ -26,7 +26,6 @@ class App extends Component {
           note: ''
         })
       })
-
       .catch(e => console.error(e))
   }
 
