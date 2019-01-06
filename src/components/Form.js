@@ -1,7 +1,6 @@
 import React from 'react'
 
 export default props => {
-  console.log(props.currentNote)
   return (
     <form
       onSubmit={props.isBeingUpdated ? props.updateNote : props.handleAddNote}

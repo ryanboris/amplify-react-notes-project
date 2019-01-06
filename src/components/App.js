@@ -12,7 +12,8 @@ class App extends Component {
     note: '',
     notes: [],
     isBeingUpdated: false,
-    currentNote: null
+    currentNote: null,
+    updatedNotes: null
   }
 
   componentDidMount() {
@@ -66,7 +67,8 @@ class App extends Component {
       graphqlOperation(updateNote, {
         input: { id: note.id, note: this.state.note }
       })
-    ).then(() => this.listNotes())
+    )
+    .then(() => this.listNotes())
   }
 
   handleChangeNote = e => {
