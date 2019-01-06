@@ -14,7 +14,7 @@ export default props => {
     <div>
       {props.notes.map(note => {
         return (
-          <div key={note.id} onClick={() => props.deleteNote(note.id)}>
+          <div key={note.id}>
             <ul className="pa0 flex flex-row justify-center">
               <li className="list">
                 <div>
@@ -23,9 +23,15 @@ export default props => {
                       style={pointerStyle}
                       icon="trash"
                       size="sm"
+                      onClick={() => props.deleteNote(note.id)}
                     />
                   </span>
-                  <span className="f3 pa1">{note.note}</span>
+                  <span
+                    className="f3 pa1"
+                    onClick={() => props.handleUpdateInput(note)}
+                  >
+                    {note.note}
+                  </span>
                 </div>
               </li>
             </ul>
