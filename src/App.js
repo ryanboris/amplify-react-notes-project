@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { API, graphqlOperation } from 'aws-amplify'
 import { withAuthenticator } from 'aws-amplify-react'
-import { createNote } from './graphql/mutations'
+import { listNotes } from './graphql/queries'
+import { createNote, deleteNote } from './graphql/mutations'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faIgloo, faTrash } from '@fortawesome/free-solid-svg-icons'
@@ -10,11 +11,27 @@ library.add(faIgloo, faTrash)
 
 class App extends Component {
   state = {
+    deletedNote: null,
     note: '',
     notes: []
   }
 
-  deleteNote = (event, id) => {}
+  componentDidMount() {
+    this.listNotes()
+  }
+
+  listNotes = () => {
+    API.graphql(graphqlOperation(listNotes))
+      .then(response => this.setState({ notes: response.data.listNotes.items }))
+      .catch(e => console.error(e))
+  }
+
+  deleteNote = id => {
+    const note = this.state.notes.find(item => item.id === id)
+    API.graphql(graphqlOperation(deleteNote, { input: { id: note.id } })).then(
+      () => this.listNotes()
+    )
+  }
 
   handleChangeNote = event => {
     this.setState({ note: event.target.value })
@@ -29,7 +46,7 @@ class App extends Component {
     API.graphql(graphqlOperation(createNote, { input }))
       .then(response => {
         this.setState({
-          notes: [...notes, response.data.createNote],
+          notes: [response.data.createNote, ...notes],
           note: ''
         })
       })
@@ -61,7 +78,11 @@ class App extends Component {
         <div>
           {notes.map(note => {
             return (
-              <div key={note.id} className="flex items-center">
+              <div
+                key={note.id}
+                className="flex items-center"
+                onClick={() => this.deleteNote(note.id)}
+              >
                 <ul>
                   <li className="list pa1 f3">
                     <div>
@@ -69,10 +90,8 @@ class App extends Component {
                       <p>
                         <FontAwesomeIcon
                           style={pointerStyle}
-                          id={note.id}
                           icon="trash"
                           size="xs"
-                          onClick={this.deleteNote}
                         />
                       </p>
                     </div>
