@@ -96,6 +96,7 @@ class App extends Component {
         <Header />
         <Form
           note={note}
+          notes={notes}
           handleAddNote={this.handleAddNote}
           handleChangeNote={this.handleChangeNote}
           handleUpdateInput={this.handleUpdateInput}

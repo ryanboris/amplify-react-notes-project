@@ -14,11 +14,14 @@ export default props => {
     <div>
       {props.notes.map(note => {
         return (
-          <div key={note.id}>
+          <div
+            key={note.id}
+            className="flex flex-column fl w-third items-center pa5"
+          >
             <ul className="pa0 flex flex-row justify-center">
               <li className="list">
                 <div>
-                  <span className="pa1">
+                  <span className="pa3">
                     <FontAwesomeIcon
                       style={pointerStyle}
                       icon="trash"

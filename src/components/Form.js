@@ -9,21 +9,25 @@ export default props => {
     >
       <input
         type="text"
-        className="pa2 f3 mt5"
+        className="pa2 f3 mt5 mb4"
         placeholder={
           props.isBeingUpdated ? 'Update your note.' : 'Write your note.'
         }
         value={props.note}
         onChange={props.handleChangeNote}
       />
-      {!props.isBeingUpdated ? (
+      {props.isBeingUpdated ? (
+        <button className="pa2 mt4-m mb5 f4" type="submit">
+          Update
+        </button>
+      ) : props.notes.length <= 8 ? (
         <button className="pa2 mt4-m f4" type="submit">
           Add Note
         </button>
       ) : (
-        <button className="pa2 mt4-m f4" type="submit">
-          Update Note
-        </button>
+        <div className="f4 red">
+          Max Notes Reached - Please delete notes to continue.
+        </div>
       )}
 
       {props.isBeingUpdated && (
