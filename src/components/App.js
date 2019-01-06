@@ -19,7 +19,9 @@ class App extends Component {
 
   componentDidMount() {
     this.listNotes()
-    API.graphql(graphqlOperation(onCreateNote)).subscribe({
+    this.createNoteSubscription = API.graphql(
+      graphqlOperation(onCreateNote)
+    ).subscribe({
       next: noteData => {
         const newNote = noteData.value.data.onCreateNote
         const prevNotes = this.state.notes.filter(
@@ -29,6 +31,10 @@ class App extends Component {
         this.setState({ notes: updatedNotes })
       }
     })
+  }
+
+  componentWillUnmount() {
+    this.createNoteSubscription.unsubscribe()
   }
 
   listNotes = async () => {
