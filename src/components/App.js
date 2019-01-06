@@ -51,13 +51,10 @@ class App extends Component {
   }
 
   deleteNote = id => {
-    const { notes } = this.state
-    const note = notes.find(item => item.id === id)
-    API.graphql(graphqlOperation(deleteNote, { input: { id: note.id } })).then(
-      () => {
-        this.listNotes()
-      }
-    )
+    API.graphql(graphqlOperation(deleteNote, { input: { id } })).then(() => {
+      const newNotes = this.state.notes.filter(note => note.id !== id)
+      this.setState({ notes: newNotes })
+    })
   }
 
   updateNote = e => {
