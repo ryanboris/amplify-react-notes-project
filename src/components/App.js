@@ -6,6 +6,7 @@ import { createNote, deleteNote, updateNote } from '../graphql/mutations'
 import Header from '../compartments/header'
 import Form from '../components/Form'
 import ListNotes from '../components/ListNotes'
+import { onCreateNote } from '../graphql/subscriptions'
 
 class App extends Component {
   state = {
@@ -18,57 +19,69 @@ class App extends Component {
 
   componentDidMount() {
     this.listNotes()
+    API.graphql(graphqlOperation(onCreateNote)).subscribe({
+      next: noteData => {
+        const newNote = noteData.value.data.onCreateNote
+        const prevNotes = this.state.notes.filter(
+          note => note.id !== newNote.id
+        )
+        const updatedNotes = [...prevNotes, newNote]
+        this.setState({ notes: updatedNotes })
+      }
+    })
   }
 
-  listNotes = () => {
-    API.graphql(graphqlOperation(listNotes))
-      .then(response =>
-        this.setState({
-          notes: response.data.listNotes.items,
-          isBeingUpdated: false,
-          currentNote: null,
-          note: ''
-        })
-      )
-      .catch(e => console.error(e))
+  listNotes = async () => {
+    const response = await API.graphql(graphqlOperation(listNotes))
+    this.setState({
+      notes: response.data.listNotes.items,
+      isBeingUpdated: false,
+      currentNote: null,
+      note: ''
+    })
   }
 
-  handleAddNote = e => {
-    const { note, notes } = this.state
+  handleAddNote = async e => {
+    const { note } = this.state
     e.preventDefault()
     const input = {
       note
     }
-    API.graphql(graphqlOperation(createNote, { input }))
-      .then(response => {
-        this.setState({
-          notes: [response.data.createNote, ...notes],
-          note: '',
-          isBeingUpdated: false,
-          currentNote: null
-        })
-      })
-      .catch(e => console.error(e))
-  }
-
-  deleteNote = id => {
-    API.graphql(graphqlOperation(deleteNote, { input: { id } })).then(() => {
-      const newNotes = this.state.notes.filter(note => note.id !== id)
-      this.setState({ notes: newNotes })
+    await API.graphql(graphqlOperation(createNote, { input }))
+    this.setState({
+      note: '',
+      isBeingUpdated: false,
+      currentNote: null
     })
+
+    // .then(response => {
+    //   this.setState({
+    //     notes: [response.data.createNote, ...notes],
+    //     note: '',
+    //     isBeingUpdated: false,
+    //     currentNote: null
+    //   })
+    // })
+    // .catch(e => console.error(e))
   }
 
-  updateNote = e => {
+  deleteNote = async id => {
+    await API.graphql(graphqlOperation(deleteNote, { input: { id } }))
+    const newNotes = this.state.notes.filter(note => note.id !== id)
+    this.setState({ notes: newNotes })
+  }
+
+  updateNote = async e => {
     const note = this.state.notes.find(
       item => item.id === this.state.currentNote.id
     )
     e.preventDefault()
-    API.graphql(
+    await API.graphql(
       graphqlOperation(updateNote, {
         input: { id: note.id, note: this.state.note }
       })
     )
-    .then(() => this.listNotes())
+    await this.listNotes()
   }
 
   handleChangeNote = e => {
